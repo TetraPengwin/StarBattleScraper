@@ -3,7 +3,7 @@ import requests
 import math
 import pygame
 from bs4 import BeautifulSoup
-URL = 'https://www.puzzle-star-battle.com/?size=8'
+URL = 'https://www.puzzle-star-battle.com/?size=9'
 
 
 
@@ -12,6 +12,12 @@ page = requests.get(URL)
 soup = BeautifulSoup(page.content, 'html.parser')
 results = str(soup.find_all(type="text/javascript")[1])
 info = soup.find(class_="puzzleInfo")
+if info.text[1]=="★":
+	puzzle = info.text[:info.text.index("  ")+1]
+	info = soup.find("option")
+	puzzle = puzzle+info.text
+else:
+	puzzle=info.text
 
 
 
@@ -19,7 +25,7 @@ info = soup.find(class_="puzzleInfo")
 start=results.index("'")+1
 end=results.index("'",start)
 board=results[start:end].split(",")
-size=int(info.text[:info.text.index("x")])
+size=int(math.sqrt(len(board)))
 
 
 
@@ -27,21 +33,21 @@ size=int(info.text[:info.text.index("x")])
 def drawLine(x,y):
 	(xv,xp,yv,yp)=(x*500/size+5,(x+1)*500/size+5,y*500/size+5,(y+1)*500/size+5)
 	try:
-		pygame.draw.line(screen,(0,0,0),(xv,yv),(xp,yv),(borders[x+y*size].index('t')!=None)*math.floor(60/size))
+		pygame.draw.line(screen,(0,0,0),(xv,yv),(xp,yv),(borders[x+y*size].index('t')!=None)*6)
 	except:
-		pygame.draw.line(screen,(0,0,0),(xv,yv),(xp,yv),math.floor(20/size))
+		pygame.draw.line(screen,(0,0,0),(xv,yv),(xp,yv),1)
 	try:
-		pygame.draw.line(screen,(0,0,0),(xv,yp),(xp,yp),(borders[x+y*size].index('b')!=None)*math.floor(60/size))
+		pygame.draw.line(screen,(0,0,0),(xv,yp),(xp,yp),(borders[x+y*size].index('b')!=None)*6)
 	except:
-		pygame.draw.line(screen,(0,0,0),(xv,yp),(xp,yp),math.floor(20/size))
+		pygame.draw.line(screen,(0,0,0),(xv,yp),(xp,yp),1)
 	try:
-		pygame.draw.line(screen,(0,0,0),(xv,yv),(xv,yp),(borders[x+y*size].index('l')!=None)*math.floor(60/size))
+		pygame.draw.line(screen,(0,0,0),(xv,yv),(xv,yp),(borders[x+y*size].index('l')!=None)*6)
 	except:
-		pygame.draw.line(screen,(0,0,0),(xv,yv),(xv,yp),math.floor(20/size))
+		pygame.draw.line(screen,(0,0,0),(xv,yv),(xv,yp),1)
 	try:
-		pygame.draw.line(screen,(0,0,0),(xp,yv),(xp,yp),(borders[x+y*size].index('r')!=None)*math.floor(60/size))
+		pygame.draw.line(screen,(0,0,0),(xp,yv),(xp,yp),(borders[x+y*size].index('r')!=None)*6)
 	except:
-		pygame.draw.line(screen,(0,0,0),(xp,yv),(xp,yp),math.floor(20/size))
+		pygame.draw.line(screen,(0,0,0),(xp,yv),(xp,yp),1)
 
 
 
@@ -58,10 +64,8 @@ for y in range(size):
 
 
 #Create PyGame Window
-background_colour = (255,255,255)
-(width, height) = (512, 512)
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption(info.text)
+screen = pygame.display.set_mode((512, 512))
+pygame.display.set_caption(puzzle)
 running = True
 
 
@@ -70,7 +74,7 @@ while running:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
-	screen.fill(background_colour)
+	screen.fill((255,255,255))
 	for x in range(size):
 		for y in range(size):
 			drawLine(x,y)
