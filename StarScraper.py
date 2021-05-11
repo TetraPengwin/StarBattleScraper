@@ -1,8 +1,9 @@
 #Initiation
 import requests
+import math
 import pygame
 from bs4 import BeautifulSoup
-URL = 'https://www.puzzle-star-battle.com/?size=5'
+URL = 'https://www.puzzle-star-battle.com/?size=8'
 
 
 
@@ -18,39 +19,41 @@ info = soup.find(class_="puzzleInfo")
 start=results.index("'")+1
 end=results.index("'",start)
 board=results[start:end].split(",")
+size=int(info.text[:info.text.index("x")])
 
 
 
 #Function for drawing lines, couldn't care how messy it is at this point
 def drawLine(x,y):
+	(xv,xp,yv,yp)=(x*500/size+5,(x+1)*500/size+5,y*500/size+5,(y+1)*500/size+5)
 	try:
-		pygame.draw.line(screen,(0,0,0),(x*50+5,y*50+5),(x*50+55,y*50+5),(borders[x+y*10].index('t')!=None)*6)
+		pygame.draw.line(screen,(0,0,0),(xv,yv),(xp,yv),(borders[x+y*size].index('t')!=None)*math.floor(60/size))
 	except:
-		pygame.draw.line(screen,(0,0,0),(x*50+5,y*50+5),(x*50+55,y*50+5),2)
+		pygame.draw.line(screen,(0,0,0),(xv,yv),(xp,yv),math.floor(20/size))
 	try:
-		pygame.draw.line(screen,(0,0,0),(x*50+5,y*50+55),(x*50+55,y*50+55),(borders[x+y*10].index('b')!=None)*6)
+		pygame.draw.line(screen,(0,0,0),(xv,yp),(xp,yp),(borders[x+y*size].index('b')!=None)*math.floor(60/size))
 	except:
-		pygame.draw.line(screen,(0,0,0),(x*50+5,y*50+55),(x*50+55,y*50+55),2)
+		pygame.draw.line(screen,(0,0,0),(xv,yp),(xp,yp),math.floor(20/size))
 	try:
-		pygame.draw.line(screen,(0,0,0),(x*50+5,y*50+5),(x*50+5,y*50+55),(borders[x+y*10].index('l')!=None)*6)
+		pygame.draw.line(screen,(0,0,0),(xv,yv),(xv,yp),(borders[x+y*size].index('l')!=None)*math.floor(60/size))
 	except:
-		pygame.draw.line(screen,(0,0,0),(x*50+5,y*50+5),(x*50+5,y*50+55),2)
+		pygame.draw.line(screen,(0,0,0),(xv,yv),(xv,yp),math.floor(20/size))
 	try:
-		pygame.draw.line(screen,(0,0,0),(x*50+55,y*50+5),(x*50+55,y*50+55),(borders[x+y*10].index('r')!=None)*6)
+		pygame.draw.line(screen,(0,0,0),(xp,yv),(xp,yp),(borders[x+y*size].index('r')!=None)*math.floor(60/size))
 	except:
-		pygame.draw.line(screen,(0,0,0),(x*50+55,y*50+5),(x*50+55,y*50+55),2)
+		pygame.draw.line(screen,(0,0,0),(xp,yv),(xp,yp),math.floor(20/size))
 
 
 
 #Set Draw State Of Grid
 borders=[]
-for i in range(100): borders.append("")
-for y in range(10):
-	for x in range(10):
-		if y==0 or board[x+y*10-10]!=board[x+y*10]: borders[x+y*10]=borders[x+y*10]+"t"
-		if y==9 or board[x+y*10+10]!=board[x+y*10]: borders[x+y*10]=borders[x+y*10]+"b"
-		if x==0 or board[x+y*10-1]!=board[x+y*10]: borders[x+y*10]=borders[x+y*10]+"l"
-		if x==9 or board[x+y*10+1]!=board[x+y*10]: borders[x+y*10]=borders[x+y*10]+"r"
+for i in range(size*size): borders.append("")
+for y in range(size):
+	for x in range(size):
+		if y==0 or board[x+y*size-size]!=board[x+y*size]: borders[x+y*size]=borders[x+y*size]+"t"
+		if y==size-1 or board[x+y*size+size]!=board[x+y*size]: borders[x+y*size]=borders[x+y*size]+"b"
+		if x==0 or board[x+y*size-1]!=board[x+y*size]: borders[x+y*size]=borders[x+y*size]+"l"
+		if x==size-1 or board[x+y*size+1]!=board[x+y*size]: borders[x+y*size]=borders[x+y*size]+"r"
 
 
 
@@ -68,7 +71,7 @@ while running:
 		if event.type == pygame.QUIT:
 			running = False
 	screen.fill(background_colour)
-	for x in range(10):
-		for y in range(10):
+	for x in range(size):
+		for y in range(size):
 			drawLine(x,y)
 	pygame.display.flip()
